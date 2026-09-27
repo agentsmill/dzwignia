@@ -179,6 +179,9 @@ code, .mono { font-family: var(--f-mono); font-size: .86em; }
 .ticker b { font-family: var(--f-mono); font-size: 20px; font-weight: 600; letter-spacing: -.03em; }
 .howto ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; font-size: 14px; color: var(--ink-2); }
 .howto li::marker { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.gate { padding-block: 48px 80px; display: grid; gap: 22px; }
+.gate-card { max-width: 540px; }
+.gate-err { color: var(--down); font-weight: 650; font-size: 14.5px; }
 .resume { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 8px; background: var(--signal-soft); border: 1px solid var(--signal); font-size: 14px; }
 .foot { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--muted); padding: 18px 0 40px; border-top: 1px solid var(--line); }
 
@@ -1975,6 +1978,8 @@ const NET = {
   pending: [],
   busy: false,
   fails: 0,
+  accessKey: null,
+  onAuthFail: null,
 
   setRoom(room) {
     this.room = room; this.remote = []; this.lastId = 0;
@@ -1986,7 +1991,16 @@ const NET = {
   },
   savePending() { try { localStorage.setItem('dzw_pend_' + this.room, JSON.stringify(this.pending.slice(-400))); } catch (e) { } },
   saveCache() { try { localStorage.setItem('dzw_cache_' + this.room, JSON.stringify(this.remote.slice(-3000))); } catch (e) { } },
-  headers() { return { apikey: this.key, 'Content-Type': 'application/json' }; },
+  headers() {
+    const h = { apikey: this.key, 'Content-Type': 'application/json' };
+    if (this.accessKey) h['x-dzw-key'] = this.accessKey;
+    return h;
+  },
+  async checkKey(k) {
+    const res = await this.fetchT(this.base.replace(/dzwignia_events$/, 'rpc/dzwignia_check'), { method: 'POST', headers: this.headers(), body: JSON.stringify({ k }) }, 8000);
+    if (!res.ok) throw new Error('http ' + res.status);
+    return (await res.json()) === true;
+  },
 
   async fetchT(url, opts, ms) {
     const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
@@ -1997,6 +2011,7 @@ const NET = {
 
   async poll() {
     if (this.disabled) { this.status = 'offline'; return false; }
+    if (!this.accessKey) return false;
     if (this.busy) return false;
     this.busy = true;
     let changed = false;
@@ -2037,10 +2052,12 @@ const NET = {
 
   async post(ev) {
     if (this.disabled) { this.status = 'offline'; return; }
+    if (!this.accessKey) return;
     try {
       const body = { room: ev.room, player: ev.player, name: ev.name, division: ev.division, type: ev.type, data: ev.data };
       const res = await this.fetchT(this.base, { method: 'POST', headers: Object.assign({ Prefer: 'return=minimal' }, this.headers()), body: JSON.stringify(body) }, 8000);
       if (res.ok) { ev._sent = true; this.status = 'online'; }
+      else if (res.status === 401 || res.status === 403) { if (this.onAuthFail) this.onAuthFail(); }
       else if (res.status >= 400 && res.status < 500) { ev._rejected = true; }
       this.savePending();
     } catch (e) { this.status = 'offline'; }
@@ -2089,6 +2106,8 @@ function plural(n, one, few, many) { const a = Math.abs(n) % 100, b = a % 10; if
 function notes(n) { return n + ' ' + plural(n, 'notatka', 'notatki', 'notatek'); }
 function mlAfter(G, W, dr, dO) { const r = ryzyko(G, W) + (dr || 0), o = ochrona(G, W) + (dO || 0); return r > 0 ? o / r : Infinity; }
 function mlFmt(ml) { return ml === Infinity ? '∞' : nf0.format(ml * 100) + '%'; }
+function normPass(s) { return String(s || '').toLowerCase().replace(/ł/g, 'l').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, ''); }
+async function sha256hex(s) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join(''); }
 function qrSVG(text) { try { if (typeof qrcode !== 'function') return ''; const q = qrcode(0, 'M'); q.addData(text); q.make(); return q.createSvgTag({ cellSize: 4, margin: 2, scalable: true, alt: 'Kod QR z linkiem do gry' }); } catch (e) { return ''; } }
 function chipsHTML(chips) { return chips && chips.length ? '<div class="chips">' + chips.map(c => '<span class="chip ' + c.tone + '">' + esc(c.text) + '</span>').join('') + '</div>' : ''; }
 
@@ -2148,6 +2167,28 @@ function stepperHTML(step) {
   const steps = [['event', 'Rynek'], ['decision', 'Decyzja'], ['portfolio', 'Portfel'], ['settle', 'Rozliczenie']];
   const idx = steps.findIndex(s => s[0] === step);
   return '<nav class="stepper" aria-label="Etapy kwartału">' + steps.map((s, i) => '<div class="' + (i < idx ? 'done' : (i === idx ? 'now' : '')) + '">' + s[1] + '</div>').join('') + '</nav>';
+}
+
+/* ============================================================
+   Wejście na hasło
+   ============================================================ */
+function renderGate(err) {
+  $('#app').innerHTML = '<div class="wrap gate">' +
+    '<div class="eyebrow">AI_Ready Leaders · moduł 4 · symulacja dla zarządu XTB</div>' +
+    '<h1 class="h-title">Dźwignia<span>AI<b>.</b></span></h1>' +
+    '<section class="setup gate-card"><h2>Wejście na hasło</h2>' +
+    '<p class="m-note">Hasło podaje prowadzący na warsztacie. Wpisujesz je raz, to urządzenie je zapamięta. Wielkość liter, spacje i polskie znaki nie mają znaczenia.</p>' +
+    '<div class="field"><label class="lbl" for="g-pass">Hasło</label><input id="g-pass" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="hasło od prowadzącego"></div>' +
+    (err ? '<p class="gate-err" role="alert">' + esc(err) + '</p>' : '') +
+    '<div class="start-actions"><button class="btn btn-primary btn-big" data-act="unlock">Wejdź do gry</button></div>' +
+    '</section></div>';
+  setTimeout(() => { const i = $('#g-pass'); if (i) i.focus(); }, 30);
+}
+function lockOut(msg) {
+  LS.del('dzw_key'); S.key = null; NET.accessKey = null;
+  if (S.view === 'gate') return;
+  S.pendingView = S.view === 'board' ? 'board' : 'start';
+  S.view = 'gate'; closeModal(); renderGate(msg);
 }
 
 /* ============================================================
@@ -2692,6 +2733,23 @@ function exportMarkdown(W) {
    Akcje
    ============================================================ */
 const ACT = {
+  async unlock() {
+    const inp = $('#g-pass');
+    const p = normPass(inp && inp.value);
+    if (!p) { renderGate('Wpisz hasło od prowadzącego.'); return; }
+    const btn = document.querySelector('[data-act="unlock"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Sprawdzam…'; }
+    const k = await sha256hex('dzwignia|' + p);
+    let ok = null;
+    try { ok = await NET.checkKey(k); } catch (e) { ok = null; }
+    if (ok === false) { renderGate('To nie to hasło. Zapytaj prowadzącego.'); return; }
+    S.key = k; NET.accessKey = k; LS.set('dzw_key', k);
+    S.keyUnverified = ok === null;
+    if (ok === null) toast('Brak połączenia z bazą. Grasz lokalnie, ranking wróci po połączeniu.');
+    S.view = S.pendingView || 'start';
+    setHash(roomHash(S.view));
+    refold(); render(); tick();
+  },
   pickDiv(d, b) {
     S.pickDiv = d.div;
     document.querySelectorAll('.divpick').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.div === d.div)));
@@ -2859,7 +2917,8 @@ function switchRoom(room) {
 function render() {
   const app = $('#app');
   app.dataset.view = S.view;
-  if (S.view === 'board') renderBoard();
+  if (S.view === 'gate') renderGate();
+  else if (S.view === 'board') renderBoard();
   else if (S.view === 'game' && S.G) renderGame();
   else { S.view = 'start'; renderStart(); }
 }
@@ -2869,6 +2928,7 @@ function sig() {
   return [W.K, Object.keys(W.platform).join(), Object.keys(W.policies).join(), Object.values(W.skills).map(s => s.sid + s.v + ':' + s.installs).join(), W.trust < 40 ? 0 : (W.trust < 60 ? 1 : 2), !!W.schema, W.staleness >= 5, G ? openRequestsTo(G.div, W).length : 0, W.evCount].join('|');
 }
 function liveUpdate() {
+  if (S.view === 'gate') return;
   if (S.view === 'start') { const l = $('#live'); if (l) l.innerHTML = liveHTML(S.W); return; }
   if (S.view === 'board') { renderBoard(); return; }
   if (S.view === 'game' && S.G) {
@@ -2887,6 +2947,9 @@ function updateBadges() {
 let lastStatus = null;
 async function tick() {
   if (document.hidden) return;
+  if (S.keyUnverified && S.key) {
+    try { const ok = await NET.checkKey(S.key); S.keyUnverified = false; if (!ok) { lockOut('Hasło się nie zgadza. Wpisz hasło od prowadzącego.'); return; } } catch (e) { }
+  }
   const changed = await NET.poll();
   if (changed) { refold(); liveUpdate(); }
   else if (NET.status !== lastStatus) updateBadges();
@@ -2899,6 +2962,10 @@ function boot() {
   S.me = loadMe(); S.pickDiv = S.me.div || null;
   S.artifact = !!(window.claude && typeof window.claude.use === 'function');
   if (S.artifact) NET.disabled = true;
+  S.key = LS.get('dzw_key');
+  if (S.key) NET.accessKey = S.key;
+  NET.onAuthFail = () => lockOut('Hasło się zmieniło. Wpisz nowe od prowadzącego.');
+  if (!S.artifact && !S.key) { S.pendingView = S.view; S.view = 'gate'; }
   NET.setRoom(S.room);
   refold();
   const saved = LS.get('dzw_run_' + S.room);
@@ -2913,6 +2980,7 @@ function boot() {
   $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !$('#modal').hidden) { closeModal(); return; }
+    if (e.key === 'Enter' && e.target && e.target.id === 'g-pass') { ACT.unlock(); return; }
     if (e.key === 'Enter' && e.target && e.target.id === 'f-name') { ACT.startGame(); return; }
     if (e.key === 'Enter' && e.target && e.target.id === 'm-room') { ACT.saveRoom(); return; }
     if (e.key === 'Enter' && e.target && e.target.id === 'm-text' && e.target.tagName === 'INPUT') { ACT.confirmPlay(); return; }
@@ -2924,6 +2992,7 @@ function boot() {
   });
   window.addEventListener('hashchange', () => {
     const hh = parseHash();
+    if (S.view === 'gate') { S.pendingView = hh.view; if (hh.room !== S.room) { S.room = hh.room; NET.setRoom(S.room); } return; }
     if (hh.room !== S.room) { switchRoom(hh.room); return; }
     if (hh.view !== S.view && !(hh.view === 'start' && S.view === 'game')) { S.view = hh.view; render(); }
   });
