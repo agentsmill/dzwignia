@@ -47,7 +47,6 @@ html{-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px
   --d-finanse: #23845A;
   --d-compliance: #7447C2;
   --d-ryzyko: #A87A00;
-  --d-operacje: #0B8585;
   --shadow: 0 1px 1px rgba(14, 24, 34, .04), 0 6px 20px -8px rgba(14, 24, 34, .18);
   --radius: 10px;
   --f-display: 'Archivo', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
@@ -63,7 +62,7 @@ html{-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px
     --signal: #FFB62E; --signal-soft: #3A2A07;
     --up: #3DCB8E; --up-soft: #0E2C20; --down: #FF6E61; --down-soft: #3A1512; --warn: #FFB547; --warn-soft: #3A2708;
     --t-wiedza: #A887FF; --t-skill: #8390FF; --t-automat: #3CC8BA; --t-pilot: #FF9A45; --t-ochrona: #9AB0C2; --t-ludzie: #FF74AE; --t-platforma: #93A6FF; --t-polityka: #BCCB5C; --t-ink: #0A1016;
-    --d-sprzedaz: #FF8A66; --d-trading: #6EA8FF; --d-finanse: #54D193; --d-compliance: #B592FF; --d-ryzyko: #E8B93C; --d-operacje: #45CFCF;
+    --d-sprzedaz: #FF8A66; --d-trading: #6EA8FF; --d-finanse: #54D193; --d-compliance: #B592FF; --d-ryzyko: #E8B93C;
     --shadow: 0 1px 1px rgba(0, 0, 0, .3), 0 8px 24px -10px rgba(0, 0, 0, .7);
   }
 }
@@ -75,7 +74,7 @@ html{-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px
   --signal: #FFB62E; --signal-soft: #3A2A07;
   --up: #3DCB8E; --up-soft: #0E2C20; --down: #FF6E61; --down-soft: #3A1512; --warn: #FFB547; --warn-soft: #3A2708;
   --t-wiedza: #A887FF; --t-skill: #8390FF; --t-automat: #3CC8BA; --t-pilot: #FF9A45; --t-ochrona: #9AB0C2; --t-ludzie: #FF74AE; --t-platforma: #93A6FF; --t-polityka: #BCCB5C; --t-ink: #0A1016;
-  --d-sprzedaz: #FF8A66; --d-trading: #6EA8FF; --d-finanse: #54D193; --d-compliance: #B592FF; --d-ryzyko: #E8B93C; --d-operacje: #45CFCF;
+  --d-sprzedaz: #FF8A66; --d-trading: #6EA8FF; --d-finanse: #54D193; --d-compliance: #B592FF; --d-ryzyko: #E8B93C;
   --shadow: 0 1px 1px rgba(0, 0, 0, .3), 0 8px 24px -10px rgba(0, 0, 0, .7);
 }
 
@@ -146,7 +145,7 @@ code, .mono { font-family: var(--f-mono); font-size: .86em; }
 .dv { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 650; color: var(--ink-2); white-space: nowrap; }
 .dv::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--dc, var(--muted)); flex: none; }
 .dv-sprzedaz { --dc: var(--d-sprzedaz); } .dv-trading { --dc: var(--d-trading); } .dv-finanse { --dc: var(--d-finanse); }
-.dv-compliance { --dc: var(--d-compliance); } .dv-ryzyko { --dc: var(--d-ryzyko); } .dv-operacje { --dc: var(--d-operacje); }
+.dv-compliance { --dc: var(--d-compliance); } .dv-ryzyko { --dc: var(--d-ryzyko); }
 
 /* ---------- start ---------- */
 .hero { padding: 44px 0 26px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 36px; align-items: end; }
@@ -487,44 +486,38 @@ const TYPES = {
   polityka:  { label: 'Polityka firmy' }
 };
 
-const DIV_ORDER = ['sprzedaz', 'trading', 'finanse', 'compliance', 'ryzyko', 'operacje'];
+const DIV_ORDER = ['sprzedaz', 'trading', 'finanse', 'compliance', 'ryzyko'];
 
 const DIVS = {
   sprzedaz: {
-    name: 'Sprzedaż i marketing', short: 'Sprzedaż',
+    name: 'Sprzedaż i marketing', short: 'Sprzedaż', owner: 'Prezes Zarządu',
     desc: 'Akwizycja na kilkunastu rynkach, kampanie, marka, konwersja.',
     perk: 'Szybki start: pilotaż kosztuje Cię 1 punkt mniej. Prawie każda Twoja kampania potrzebuje jednak checkera od compliance.',
     mods: { pilotCost: -1 }
   },
   trading: {
-    name: 'Trading i oferta', short: 'Trading',
-    desc: 'xStation, instrumenty i nowości z planu na 2026: krypto spot, opcje, handel 24/5, OKI.',
-    perk: 'Duża stawka: wdrożenia produkcyjne dają Ci 25% więcej. Asystent w xStation wejdzie na produkcję dopiero ze skillami od ryzyka i compliance.',
-    mods: { prodMult: 1.25 }
+    name: 'Trading, oferta i obsługa klienta', short: 'Trading', owner: 'Członek Zarządu ds. tradingu',
+    desc: 'xStation, instrumenty, nowości z planu na 2026 (krypto spot, opcje, handel 24/5, OKI) i globalne wsparcie klientów.',
+    perk: 'Duża stawka: wdrożenia produkcyjne dają Ci 50% więcej. Asystent w xStation wejdzie na produkcję dopiero ze skillami od ryzyka i compliance.',
+    mods: { prodMult: 1.5 }
   },
   finanse: {
-    name: 'Finanse i kontroling', short: 'Finanse',
+    name: 'Finanse i kontroling', short: 'Finanse', owner: 'Członek Zarządu ds. finansowych',
     desc: 'Raportowanie, KPI, budżety i koszt AI w całej firmie.',
     perk: 'Kontrola kosztu: płacisz o 30% mniej za tokeny, a automatyzacje dają Ci 25% więcej.',
     mods: { tokMult: 0.7, autoMult: 1.25 }
   },
   compliance: {
-    name: 'Prawo i compliance', short: 'Compliance',
-    desc: 'KNF, ESMA, MiFID II, MiCA, AML i komunikacja marketingowa.',
+    name: 'Prawo i compliance', short: 'Compliance', owner: 'Członek Zarządu ds. prawnych',
+    desc: 'KNF, ESMA, MiFID II, MiCA, AML i KYC, komunikacja marketingowa.',
     perk: 'Strażnik: zaczynasz z depozytem większym o 1. Każda instalacja Twojego skilla przez inny pion liczy się 1,5 raza.',
     mods: { startO: 1, installMult: 1.5 }
   },
   ryzyko: {
-    name: 'Ryzyko i bezpieczeństwo', short: 'Ryzyko',
+    name: 'Ryzyko i bezpieczeństwo', short: 'Ryzyko', owner: 'Członek Zarządu ds. ryzyka',
     desc: 'Ryzyko operacyjne, DORA, dostawcy ICT, bezpieczeństwo danych.',
     perk: 'Depozyt: zaczynasz z zabezpieczeniem większym o 2, a polityki firmowe kosztują Cię 1 punkt mniej.',
     mods: { startO: 2, policyCost: -1 }
-  },
-  operacje: {
-    name: 'Operacje i obsługa klienta', short: 'Operacje',
-    desc: 'Onboarding i KYC, obsługa klientów w wielu językach, reklamacje.',
-    perk: 'Skala: Twoja dźwignia rośnie z poziomem Second Brain półtora raza szybciej niż u innych.',
-    mods: { kMult: 1.5 }
   }
 };
 
@@ -561,7 +554,7 @@ const SKILLS = {
     rules: ['Jedna definicja aktywnego klienta w całej firmie.', 'Liczy skrypt, model tylko opisuje wynik.', 'Każda liczba ma źródło: arkusz, zakładka, komórka.']
   },
   procedury_obslugi: {
-    div: 'operacje', slug: 'procedury-obslugi', title: 'Procedury obsługi i reklamacji',
+    div: 'trading', slug: 'procedury-obslugi', title: 'Procedury obsługi i reklamacji',
     when: 'Prowadzi konsultanta przez procedurę i termin odpowiedzi. Użyj przy zgłoszeniach i reklamacjach.',
     rules: ['Termin odpowiedzi na reklamację pilnuje skrypt, a nie pamięć.', 'Nie obiecujemy zwrotu przed decyzją.', 'Gdy odpowiedzi nie ma w bazie, eskalujemy do specjalisty.']
   }
@@ -662,7 +655,7 @@ const CARDS = [
     text: 'Seria maili dopasowana do segmentu: nowy klient, pierwszy ETF, plan inwestycyjny.',
     lesson: 'Personalizacja na segmentach daje większość efektu bez wkładania historii transakcji klienta do promptu.' },
 
-  /* ---------- Trading i oferta ---------- */
+  /* ---------- Trading, oferta i obsługa klienta ---------- */
   { id: 't_opis', div: 'trading', type: 'skill', cost: 2, sid: 'opis_instrumentu',
     name: 'Skill: Opis instrumentu i ryzyka',
     text: 'Reguły, jak tłumaczyć instrument klientowi, żeby nie przekroczyć granicy rekomendacji.',
@@ -686,6 +679,23 @@ const CARDS = [
     name: 'Nocny monitoring newsów',
     text: 'Model czyta newsy w nocy i budzi dyżurnego, gdy coś spełnia ustalone progi.',
     lesson: 'Przy zbyt wielu fałszywych alarmach po tygodniu nikt ich nie czyta. Progi ustala człowiek i zapisuje je w skillu.' },
+  { id: 't_procedury', div: 'trading', type: 'skill', cost: 2, sid: 'procedury_obslugi',
+    name: 'Skill: Procedury obsługi i reklamacji',
+    text: 'Terminy, szablony, kiedy eskalować i czego nie wolno obiecać.',
+    lesson: 'Procedura zapisana jako skill pracuje przy każdym zgłoszeniu. PDF na intranecie nie pracuje przy żadnym.' },
+  { id: 't_baza', div: 'trading', type: 'wiedza', cost: 1, note: 2, input: 'note',
+    name: 'Baza wiedzy obsługi: 300 najczęstszych pytań',
+    text: 'Pytania klientów z odpowiedziami i źródłami trafiają do Second Brain. Liczą się jak dwie notatki.',
+    lesson: 'Obsługa klienta wie o firmie więcej niż ktokolwiek. Jej wiedza podnosi dźwignię całej firmy.' },
+  { id: 't_konsultant', div: 'trading', type: 'pilot', cost: 2, needK: 2, base: 55, prod: 250, tokP: 3, tokProd: 15, rP: 2, rProd: 3,
+    prodNeeds: ['procedury_obslugi', 'checker_komunikacji'], incident: 'Asystent podał klientowi nieaktualną opłatę',
+    name: 'Asystent konsultanta w wielu językach',
+    text: 'Konsultant dostaje projekt odpowiedzi w języku klienta z linkiem do źródła. Wysyła człowiek.',
+    lesson: 'Asystent jest tak dobry jak baza, z której czyta. Bez Second Brain na poziomie 2 nie ma czego wdrażać.' },
+  { id: 't_routing', div: 'trading', type: 'automat', cost: 1, needK: 1, base: 25, tok: 1, r: 0,
+    name: 'Klasyfikacja i routing zgłoszeń',
+    text: 'Model czyta zgłoszenie i przypisuje kategorię, język i pilność.',
+    lesson: 'Pomyłka kosztuje tu minutę, a nie klienta. Dobre pierwsze wdrożenie.' },
 
   /* ---------- Finanse i kontroling ---------- */
   { id: 'f_kpi', div: 'finanse', type: 'skill', cost: 2, sid: 'raport_kpi',
@@ -734,12 +744,17 @@ const CARDS = [
     name: 'Przegląd umów z dostawcami pod DORA',
     text: 'Model wyciąga z umów klauzule o audycie, lokalizacji danych i planie wyjścia.',
     lesson: 'Prawnik czyta tylko to, co model oznaczył jako brak. Czas przeglądu spada, odpowiedzialność zostaje.' },
+  { id: 'k_kyc', div: 'compliance', type: 'pilot', cost: 2, base: 40, prod: 200, tokP: 2, tokProd: 8, rP: 2, rProd: 3,
+    prodNeeds: ['rubryka_ryzyka'], incident: 'Skany dokumentów trafiły do niezatwierdzonego dostawcy',
+    name: 'Wstępna weryfikacja dokumentów KYC',
+    text: 'Model sprawdza kompletność i czytelność dokumentów. Decyzja AML zostaje u człowieka.',
+    lesson: 'Dokumenty tożsamości to najwrażliwsza klasa danych. Dostawca musi być w rejestrze, a decyzja zostaje przy człowieku.' },
 
   /* ---------- Ryzyko i bezpieczeństwo ---------- */
   { id: 'r_rubryka', div: 'ryzyko', type: 'skill', cost: 2, sid: 'rubryka_ryzyka',
     name: 'Skill: Rubryka ryzyka dla narzędzi AI',
     text: 'Pytania, na które każde narzędzie musi odpowiedzieć przed wdrożeniem.',
-    lesson: 'Zapisana jako skill, a nie jako ankieta w mailu. Bez tej rubryki trading i operacje nie wejdą na produkcję.' },
+    lesson: 'Zapisana jako skill, a nie jako ankieta w mailu. Bez tej rubryki asystent w xStation i weryfikacja KYC nie wejdą na produkcję.' },
   { id: 'r_redteam', div: 'ryzyko', type: 'polityka', cost: 2, once: 'redteam', pid: 'redteam',
     name: 'Red team: kwartalne testy prompt injection',
     text: 'Raz na kwartał ktoś, kto nie budował narzędzi, podsuwa im spreparowane strony i pliki.',
@@ -760,31 +775,7 @@ const CARDS = [
   { id: 'r_fallback', div: 'ryzyko', type: 'ochrona', cost: 1, needPlat: 'brama', o: 1, flag: 'fallback',
     name: 'Model zapasowy w bramie',
     text: 'Gdy dostawca ma awarię, brama przełącza ruch na drugi model.',
-    lesson: 'Odporność operacyjna z DORA dotyczy też AI. Przełączenie testujesz raz na kwartał, a nie w dniu awarii.' },
-
-  /* ---------- Operacje i obsługa klienta ---------- */
-  { id: 'o_procedury', div: 'operacje', type: 'skill', cost: 2, sid: 'procedury_obslugi',
-    name: 'Skill: Procedury obsługi i reklamacji',
-    text: 'Terminy, szablony, kiedy eskalować i czego nie wolno obiecać.',
-    lesson: 'Procedura zapisana jako skill pracuje przy każdym zgłoszeniu. PDF na intranecie nie pracuje przy żadnym.' },
-  { id: 'o_baza', div: 'operacje', type: 'wiedza', cost: 1, note: 2, input: 'note',
-    name: 'Baza wiedzy obsługi: 300 najczęstszych pytań',
-    text: 'Pytania klientów z odpowiedziami i źródłami trafiają do Second Brain. Liczą się jak dwie notatki.',
-    lesson: 'Obsługa klienta wie o firmie więcej niż ktokolwiek. Jej wiedza podnosi dźwignię całej firmy.' },
-  { id: 'o_asystent', div: 'operacje', type: 'pilot', cost: 2, needK: 2, base: 55, prod: 250, tokP: 3, tokProd: 15, rP: 2, rProd: 3,
-    prodNeeds: ['procedury_obslugi', 'checker_komunikacji'], incident: 'Asystent podał klientowi nieaktualną opłatę',
-    name: 'Asystent konsultanta w wielu językach',
-    text: 'Konsultant dostaje projekt odpowiedzi w języku klienta z linkiem do źródła. Wysyła człowiek.',
-    lesson: 'Asystent jest tak dobry jak baza, z której czyta. Bez Second Brain na poziomie 2 nie ma czego wdrażać.' },
-  { id: 'o_routing', div: 'operacje', type: 'automat', cost: 1, needK: 1, base: 25, tok: 1, r: 0,
-    name: 'Klasyfikacja i routing zgłoszeń',
-    text: 'Model czyta zgłoszenie i przypisuje kategorię, język i pilność.',
-    lesson: 'Pomyłka kosztuje tu minutę, a nie klienta. Dobre pierwsze wdrożenie.' },
-  { id: 'o_kyc', div: 'operacje', type: 'pilot', cost: 2, base: 40, prod: 200, tokP: 2, tokProd: 8, rP: 2, rProd: 3,
-    prodNeeds: ['rubryka_ryzyka'], incident: 'Skany dokumentów trafiły do niezatwierdzonego dostawcy',
-    name: 'Wstępna weryfikacja dokumentów KYC',
-    text: 'Model sprawdza kompletność i czytelność dokumentów. Decyzja AML zostaje u człowieka.',
-    lesson: 'Dokumenty tożsamości to najwrażliwsza klasa danych. Dostawca musi być w rejestrze, a decyzja zostaje przy człowieku.' }
+    lesson: 'Odporność operacyjna z DORA dotyczy też AI. Przełączenie testujesz raz na kwartał, a nie w dniu awarii.' }
 ];
 
 /* ------------------------------------------------------------
@@ -852,7 +843,7 @@ const DILEMMAS = [
       { k: 'A', label: 'Niech model sam wybierze właściwą wersję', fx: { r: 1 },
         out: 'Model wybiera pewnym tonem. Czasem dobrze.' },
       { k: 'B', label: 'Lint: każda strona dostaje właściciela i datę przeglądu, stare wersje idą do Archiwum', best: true,
-        fx: { lint: true, o: 1, note: 1, capNext: -1 },
+        fx: { lint: true, o: 1, note: 1 },
         out: 'Dzień pracy dwóch osób. Model przestał cytować nieaktualny regulamin, a Second Brain firmy ma mniej sprzeczności.' },
       { k: 'C', label: 'Kasujemy wszystko i zaczynamy od zera', fx: { a: -0.05, v: -20 },
         out: 'Czysto, pusto i bez historii decyzji. Połowę plików trzeba będzie odtworzyć.' }
@@ -1005,7 +996,7 @@ const DILEMMAS = [
     ],
     lesson: 'Minimalizacja danych: do promptu trafia tyle danych klienta, ile potrzeba do zadania. Segment „nowy klient, kupił ETF, nie zna opcji” daje większość efektu bez profilowania pojedynczych osób.' },
 
-  /* ---------- Trading i oferta ---------- */
+  /* ---------- Trading, oferta i obsługa klienta ---------- */
   { id: 't_okazje', div: 'trading', title: 'Asystent podpowiada okazje',
     sit: 'Produkt proponuje, żeby asystent w xStation pokazywał klientom „okazje” na podstawie newsów i ich portfela.',
     opts: [
@@ -1040,6 +1031,28 @@ const DILEMMAS = [
         out: 'Cisza. Do pierwszej nocy, w której naprawdę coś się stanie.' }
     ],
     lesson: 'Narzędzie, które alarmuje za często, jest tak samo bezużyteczne jak brak narzędzia. Progi ustala człowiek, zapisuje je w skillu i sprawdza na historii, zanim kogokolwiek obudzi.' },
+
+  { id: 't_zrodlo', div: 'trading', title: 'Z bazy czy z głowy?',
+    sit: 'Asystent konsultantów odpowiada w wielu językach. Możesz pozwolić mu odpowiadać z ogólnej wiedzy modelu albo tylko z bazy wiedzy XTB, z linkiem do źródła.',
+    opts: [
+      { k: 'A', label: 'Z ogólnej wiedzy, bo więcej wie', fx: { v: 40, r: 2 },
+        out: 'Asystent zna ogólne zasady rynku. Nie zna Waszego regulaminu, opłat ani godzin.' },
+      { k: 'B', label: 'Tylko z bazy wiedzy, z linkiem do źródła; gdy nie ma odpowiedzi, mówi, że nie wie', best: true,
+        fx: { note: 1, o: 1, v: 20 },
+        out: 'Częściej odpowiada „nie wiem, przekazuję specjaliście”. Za to nie zmyśla opłat.' }
+    ],
+    lesson: 'Asystent jest tak dobry jak baza, z której czyta. Odpowiedź z linkiem do źródła da się sprawdzić, a „nie wiem” jest lepsze niż pewna siebie pomyłka o opłatach.' },
+
+  { id: 't_szczyt', div: 'trading', title: 'Szczyt zgłoszeń po zmianie cennika',
+    sit: 'Po zmianie tabeli opłat liczba zgłoszeń skoczyła trzykrotnie. Kierownik chce na tydzień wyłączyć zatwierdzanie odpowiedzi przez ludzi, żeby nadrobić kolejkę.',
+    opts: [
+      { k: 'A', label: 'Wyłączamy na tydzień', fx: { v: 40, r: 2 },
+        out: 'Kolejka znika w trzy dni. W tym czasie asystent kilka razy cytuje starą tabelę opłat.' },
+      { k: 'B', label: 'Najpierw lint bazy wiedzy pod nową tabelę opłat, potem szybsze zatwierdzanie gotowych szablonów', best: true,
+        fx: { lint: true, v: 25, o: 1 },
+        out: 'Pół dnia na aktualizację bazy. Potem konsultanci zatwierdzają odpowiedzi jednym kliknięciem, bo są zgodne z nową tabelą.' }
+    ],
+    lesson: 'Zmiana cennika to moment, w którym Second Brain najszybciej się starzeje. Najpierw aktualizujesz źródło, potem przyspieszasz proces; odwrotna kolejność mnoży błędy.' },
 
   /* ---------- Finanse i kontroling ---------- */
   { id: 'f_suma', div: 'finanse', title: 'Suma się nie zgadza',
@@ -1109,6 +1122,17 @@ const DILEMMAS = [
     ],
     lesson: 'Przy 95% trafności co dwudziesta odpowiedź jest błędna. W procesach regulowanych, jak reklamacje z ustawowym terminem, AI przygotowuje projekt, a decyzję i podpis zostawia człowiekowi.' },
 
+  { id: 'k_kyc_dane', div: 'compliance', title: 'Dowody osobiste w modelu',
+    sit: 'Zespół KYC chce, żeby model czytał skany dowodów i paszportów, bo onboarding na nowych rynkach się korkuje.',
+    opts: [
+      { k: 'A', label: 'Wrzucamy skany do najlepszego modelu na rynku', fx: { v: 50, r: 3, trust: -2 },
+        out: 'Onboarding przyspieszył. Skany dokumentów tożsamości idą do dostawcy, którego nie ma w rejestrze.' },
+      { k: 'B', label: 'Model sprawdza kompletność i czytelność u zatwierdzonego dostawcy, decyzja AML zostaje u człowieka', best: true,
+        fx: { v: 30, o: 1 },
+        out: 'Kolejka krótsza o połowę, dane zostają w zatwierdzonym środowisku.' }
+    ],
+    lesson: 'Dokumenty tożsamości to najwrażliwsza klasa danych klientów. Model może odciążyć ludzi przy sprawdzaniu kompletności, ale dostawca musi być w rejestrze, a decyzja AML zostaje przy człowieku.' },
+
   /* ---------- Ryzyko i bezpieczeństwo ---------- */
   { id: 'r_test', div: 'ryzyko', title: 'Kto testuje narzędzia?',
     sit: 'Piony zbudowały kilkanaście narzędzi AI. Nikt nie sprawdzał, co się stanie, gdy ktoś podsunie im spreparowany plik albo stronę.',
@@ -1142,41 +1166,7 @@ const DILEMMAS = [
         out: 'Przy następnej awarii przełączenie trwa minutę.',
         outElse: 'Bez bramy nie ma gdzie przełączyć ruchu. Karta „Brama LiteLLM” czeka w Twoim portfelu.' }
     ],
-    lesson: 'Odporność operacyjna z DORA dotyczy też AI: drugi model w bramie, procedura przełączenia i test raz na kwartał.' },
-
-  /* ---------- Operacje i obsługa klienta ---------- */
-  { id: 'o_zrodlo', div: 'operacje', title: 'Z bazy czy z głowy?',
-    sit: 'Asystent konsultantów odpowiada w wielu językach. Możesz pozwolić mu odpowiadać z ogólnej wiedzy modelu albo tylko z bazy wiedzy XTB, z linkiem do źródła.',
-    opts: [
-      { k: 'A', label: 'Z ogólnej wiedzy, bo więcej wie', fx: { v: 40, r: 2 },
-        out: 'Asystent zna ogólne zasady rynku. Nie zna Waszego regulaminu, opłat ani godzin.' },
-      { k: 'B', label: 'Tylko z bazy wiedzy, z linkiem do źródła; gdy nie ma odpowiedzi, mówi, że nie wie', best: true,
-        fx: { note: 1, o: 1, v: 20 },
-        out: 'Częściej odpowiada „nie wiem, przekazuję specjaliście”. Za to nie zmyśla opłat.' }
-    ],
-    lesson: 'Asystent jest tak dobry jak baza, z której czyta. Odpowiedź z linkiem do źródła da się sprawdzić, a „nie wiem” jest lepsze niż pewna siebie pomyłka o opłatach.' },
-
-  { id: 'o_kyc_dane', div: 'operacje', title: 'Dowody osobiste w modelu',
-    sit: 'Zespół KYC chce, żeby model czytał skany dowodów i paszportów, bo onboarding na nowych rynkach się korkuje.',
-    opts: [
-      { k: 'A', label: 'Wrzucamy skany do najlepszego modelu na rynku', fx: { v: 50, r: 3 },
-        out: 'Onboarding przyspieszył. Skany dokumentów tożsamości idą do dostawcy, którego nie ma w rejestrze.' },
-      { k: 'B', label: 'Model sprawdza kompletność i czytelność u zatwierdzonego dostawcy, decyzja AML zostaje u człowieka', best: true,
-        fx: { v: 30, o: 1, capNext: -1 },
-        out: 'Kolejka krótsza o połowę, dane zostają w zatwierdzonym środowisku.' }
-    ],
-    lesson: 'Dokumenty tożsamości to najwrażliwsza klasa danych klientów. Model może odciążyć ludzi przy sprawdzaniu kompletności, ale dostawca musi być w rejestrze, a decyzja AML zostaje przy człowieku.' },
-
-  { id: 'o_szczyt', div: 'operacje', title: 'Szczyt zgłoszeń po zmianie cennika',
-    sit: 'Po zmianie tabeli opłat liczba zgłoszeń skoczyła trzykrotnie. Kierownik chce na tydzień wyłączyć zatwierdzanie odpowiedzi przez ludzi, żeby nadrobić kolejkę.',
-    opts: [
-      { k: 'A', label: 'Wyłączamy na tydzień', fx: { v: 40, r: 2 },
-        out: 'Kolejka znika w trzy dni. W tym czasie asystent kilka razy cytuje starą tabelę opłat.' },
-      { k: 'B', label: 'Najpierw lint bazy wiedzy pod nową tabelę opłat, potem szybsze zatwierdzanie gotowych szablonów', best: true,
-        fx: { lint: true, v: 25, o: 1 },
-        out: 'Pół dnia na aktualizację bazy. Potem konsultanci zatwierdzają odpowiedzi jednym kliknięciem, bo są zgodne z nową tabelą.' }
-    ],
-    lesson: 'Zmiana cennika to moment, w którym Second Brain najszybciej się starzeje. Najpierw aktualizujesz źródło, potem przyspieszasz proces; odwrotna kolejność mnoży błędy.' }
+    lesson: 'Odporność operacyjna z DORA dotyczy też AI: drugi model w bramie, procedura przełączenia i test raz na kwartał.' }
 ];
 
 /* Decyzja dynamiczna: pomoc po incydencie innego pionu */
@@ -1735,7 +1725,7 @@ function playCard(G, W, id, input, emits) {
   switch (c.type) {
     case 'wiedza':
       if (id === 'c_schema') { emits.push(['schema', {}]); G.contrib.schema++; }
-      else if (c.note) { for (let i = 0; i < c.note; i++) emits.push(['note', { text: i === 0 ? text : '', kind: c.id === 'o_baza' ? 'baza' : (c.id === 'c_decyzje' ? 'decyzje' : 'ingest') }]); G.contrib.note += c.note; }
+      else if (c.note) { for (let i = 0; i < c.note; i++) emits.push(['note', { text: i === 0 ? text : '', kind: c.id === 't_baza' ? 'baza' : (c.id === 'c_decyzje' ? 'decyzje' : 'ingest') }]); G.contrib.note += c.note; }
       if (c.lint) { emits.push(['lint', {}]); G.contrib.lint++; }
       if (c.o) G.o += c.o;
       break;
@@ -2233,7 +2223,7 @@ function renderStart() {
     '<div class="start-grid"><section class="setup">' + resume + (S.artifact ? '<div class="resume"><span>Podgląd w Claude: grasz solo, a wynik zostaje na tym urządzeniu. Ranking i wspólna firma z resztą zarządu działają pod publicznym linkiem do gry.</span></div>' : '') +
     '<h2>Wybierz swój pion</h2>' +
     '<div class="field"><label class="lbl" for="f-name">Imię albo inicjały</label><input id="f-name" maxlength="32" autocomplete="off" value="' + esc(S.me.name || '') + '" placeholder="np. Jan K."></div>' +
-    '<div class="divgrid" role="group" aria-label="Pion">' + DIV_ORDER.map(k => '<button type="button" class="divpick" data-act="pickDiv" data-div="' + k + '" aria-pressed="' + (S.pickDiv === k) + '"><b>' + esc(DIVS[k].name) + '</b><small>' + esc(DIVS[k].desc) + '</small><span class="perk">' + esc(DIVS[k].perk) + '</span></button>').join('') + '</div>' +
+    '<div class="divgrid" role="group" aria-label="Pion">' + DIV_ORDER.map(k => '<button type="button" class="divpick" data-act="pickDiv" data-div="' + k + '" aria-pressed="' + (S.pickDiv === k) + '"><span class="lbl">' + esc(DIVS[k].owner) + '</span><b>' + esc(DIVS[k].name) + '</b><small>' + esc(DIVS[k].desc) + '</small><span class="perk">' + esc(DIVS[k].perk) + '</span></button>').join('') + '</div>' +
     '<div class="start-actions"><button class="btn btn-primary btn-big" data-act="startGame">Zacznij od ' + QUARTERS[0] + '</button><span class="start-meta">8 kwartałów, około 15 minut</span></div>' +
     '<div class="start-meta">Pokój <b class="mono">' + esc(S.room) + '</b><button class="linkish" data-act="roomModal">zmień</button><span aria-hidden="true">·</span><button class="linkish" data-act="how">Jak grać</button><button class="linkish" data-act="about">O grze</button><button class="linkish" data-act="goBoard">Tablica na projektor</button><button class="linkish" data-act="ranking">Ranking</button></div>' +
     '</section><aside id="live">' + liveHTML(W) + '</aside></div>' +
@@ -2759,7 +2749,7 @@ const ACT = {
   startGame() {
     const input = $('#f-name');
     const name = (input ? input.value : '').replace(/\s+/g, ' ').trim().slice(0, 32);
-    if (!S.pickDiv) { toast('Wybierz swój pion'); return; }
+    if (!DIVS[S.pickDiv]) { toast('Wybierz swój pion'); return; }
     if (!name) { toast('Wpisz imię albo inicjały'); if (input) input.focus(); return; }
     if (S.G && S.G.step !== 'end' && S.G.pid === S.me.pid && !S.forceNew) {
       openModal('<h3>Zacząć od nowa?</h3><p>Masz niedokończoną grę (' + esc(DIVS[S.G.div].short) + ', ' + QUARTERS[Math.min(S.G.q, 7)] + '). Nowa gra ją zastąpi. W rankingu zostanie Twój najlepszy wynik.</p><div class="m-actions"><button class="btn" data-act="resume">Wróć do starej</button><button class="btn btn-primary" data-act="confirmNew">Nowa gra</button></div>');
@@ -2910,7 +2900,7 @@ function switchRoom(room) {
   S.room = room;
   NET.setRoom(room);
   const saved = LS.get('dzw_run_' + room);
-  S.G = saved && saved.pid === S.me.pid && saved.v === 1 ? saved : null;
+  S.G = saved && saved.pid === S.me.pid && saved.v === 1 && DIVS[saved.div] ? saved : null;
   refold();
   S.view = S.view === 'board' ? 'board' : 'start';
   setHash(roomHash(S.view));
@@ -2963,7 +2953,7 @@ async function tick() {
 function boot() {
   const h = parseHash();
   S.room = h.room; S.view = h.view;
-  S.me = loadMe(); S.pickDiv = S.me.div || null;
+  S.me = loadMe(); S.pickDiv = DIVS[S.me.div] ? S.me.div : null;
   S.artifact = !!(window.claude && typeof window.claude.use === 'function');
   if (S.artifact) NET.disabled = true;
   S.key = LS.get('dzw_key');
